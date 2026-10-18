@@ -18,7 +18,7 @@ lake env lean Flightschool/Basics.lean
 #eval step (step {} .send) .ack
 ```
 
-첫 결과는 `waiting, 1`, 다음 결과는 `idle, 1`입니다. `{}`는 `idle, 0`에서 시작하므로, `send`로 `waiting, 1`이 되고 이어서 `ack`로 `idle, 1`이 됩니다. ACK가 와도 보낸 횟수는 감소하지 않습니다. `{ s with phase := .idle }`은 `s`의 다른 필드를 유지한 새 값을 만듭니다. Lean의 함수는 입력 객체를 직접 변경하지 않습니다. `step`의 `match`는 위에서부터 차례로 비교해 처음 맞는 줄을 사용합니다. 패턴 매칭의 `| _, _ => s`는 앞에서 처리하지 않은 모든 경우를 뜻합니다.
+첫 결과는 `phase`가 `waiting`, `sent`가 1인 상태(줄여서 `waiting, 1`), 다음 결과는 `idle, 1`입니다. 실제 출력은 `{ phase := …, sent := 1 }` 형태로 나옵니다. `{}`는 `idle, 0`에서 시작하므로, `send`로 `waiting, 1`이 되고 이어서 `ack`로 `idle, 1`이 됩니다. ACK가 와도 보낸 횟수는 감소하지 않습니다. `{ s with phase := .idle }`은 `s`의 다른 필드를 유지한 새 값을 만듭니다. Lean의 함수는 입력 객체를 직접 변경하지 않습니다. `step`의 `match`는 위에서부터 차례로 비교해 처음 맞는 줄을 사용합니다. 패턴 매칭의 `| _, _ => s`는 앞에서 처리하지 않은 모든 경우를 뜻합니다.
 
 `theorem idle_timeout`은 어떤 자연수 `n`에서도 성립합니다. `#eval`은 값 하나를 계산하지만 `theorem`은 모든 `n`에 대해 성립함을 보입니다. `⟨.idle, n⟩`은 `phase`와 `sent`를 순서대로 적어 State를 만드는 표기입니다. `:= by rfl`은 양쪽을 계산했을 때 같다는 증명입니다. 이 경우 `step`의 마지막 줄 `| _, _ => s`가 적용되어 양쪽이 같아집니다. 아직 전술을 외우지 말고 `n`을 0, 3으로 바꾸어 손으로 계산해 보세요.
 
