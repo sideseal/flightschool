@@ -4,15 +4,15 @@
 
 ## AST도 평범한 값입니다
 
-[Protocol.lean](../Flightschool/Protocol.lean)의 `Guard`, `Action`, `Rule`을 읽습니다. AST는 “어떤 동작을 뜻하는지 기록한 자료”입니다. 별도 문법·parser·매크로·외부 DSL·code generation은 없습니다. `Rule`은 이벤트, guard, 명령 목록 세 필드만 가집니다.
+[Protocol.lean](../Flightschool/Protocol.lean)의 `Guard`, `Action`, `Rule`을 읽습니다. AST는 “어떤 동작을 뜻하는지 기록한 자료”입니다. 여기서는 `Guard`, `Action`, `Rule`처럼 평범한 `inductive`·`structure` 값을 뜻합니다. 별도 문법·parser·매크로·외부 DSL·code generation은 없습니다. `Rule`은 이벤트, guard, 명령 목록 세 필드만 가집니다.
 
 ```lean
 ⟨.timeout, .waiting, [.retry]⟩
 ```
 
-이 값은 timeout이 오고 송신자가 대기 중이면 retry 명령을 적용한다는 뜻입니다. `evalGuard`가 조건을 계산하고 `execAction`이 명령 하나의 뜻을 구현합니다. `execActions`는 왼쪽부터 순서대로 적용합니다. `interpret`는 **첫 번째로 일치하는 규칙 하나**를 고릅니다. 모든 일치 규칙을 실행하지 않습니다. guard는 명령 실행 전 한 번 평가됩니다.
+이 값은 순서대로 이벤트, guard, 명령 목록이며, timeout이 오고 송신자가 대기 중이면 retry 명령을 적용한다는 뜻입니다. `protocol`은 이런 `Rule` 6개를 담은 목록입니다. `evalGuard`가 조건을 계산하고 `execAction`이 명령 하나의 뜻을 구현합니다. `execActions`는 왼쪽부터 순서대로 적용합니다. `interpret`는 **첫 번째로 일치하는 규칙 하나**(이벤트가 같고 `evalGuard`가 `true`인 규칙)를 고릅니다. 모든 일치 규칙을 실행하지 않습니다. guard는 명령 실행 전 한 번 평가됩니다.
 
-`step := interpret protocol`입니다. 반환형은 2회차와 같은 `State → Event → Option (State × List Action)`입니다. 여기서 Action 목록은 이미 적용한 명령 기록입니다. send/retry가 만드는 패킷은 반환 명령을 다시 실행하지 않아도 다음 State의 큐에 들어 있습니다.
+`step := interpret protocol`입니다. 반환형은 2회차와 같은 `State → Event → Option (State × List Action)`입니다. 3회차에서 읽은 `directStep`과 결과가 같다는 것이 `interpreter_matches_direct`입니다. 여기서 Action 목록은 이미 적용한 명령 기록입니다. send/retry가 만드는 패킷은 반환 명령을 다시 실행하지 않아도 다음 State의 큐에 들어 있습니다.
 
 ## 실험하기
 
@@ -21,7 +21,7 @@ lake env lean exercises/Session4.lean
 lake env lean projects/StopAndWait.lean
 ```
 
-처음 시작 파일은 timeout 규칙이 없어 `none`을 출력합니다. 규칙 추가 후에는 `some`과 큐에 두 개의 data 0이 보입니다. 첫 start가 만든 data를 아직 전달하지 않았기 때문입니다.
+처음 시작 파일은 `advance {} .start`로 start를 한 상태에서 timeout을 시도하는데, timeout 규칙이 없어 `none`을 출력합니다. 규칙 추가 후에는 `some`과 큐에 두 개의 data 0이 보입니다. 첫 start가 만든 data를 아직 전달하지 않았기 때문입니다.
 
 두 개의 같은 event/guard 규칙을 넣으면 순서가 의미를 갖습니다. 예를 들어 start/idle에 빈 명령 목록을 가진 규칙을 먼저 두면 그 이벤트는 성공하지만 아무것도 보내지 않습니다. 이 경우에도 안전성은 유지될 수 있습니다. **안전성 정리만으로 원하는 진전까지 보장되지는 않습니다.**
 
@@ -29,14 +29,14 @@ lake env lean projects/StopAndWait.lean
 
 `actions_preserve`는 명령 목록에 대한 귀납, `interpret_preserves`는 규칙 목록에 대한 귀납입니다. 이 제한된 Action들은 모두 Inv를 보존하므로 어떤 규칙표에 대해서도 그 특정 불변식은 보존됩니다. 그렇다고 임의의 규칙표가 올바른 Stop-and-Wait는 아닙니다. 빈 규칙표도 안전하지만 아무것도 하지 않습니다. 새 Action 생성자를 추가하면 기존 case 분석과 보존 증명을 다시 완성해야 합니다.
 
-`timeout_local`은 timeout에서 송신·수신 노드의 진행 번호가 바뀌지 않는 국소 보존 성질입니다. `Inv`는 한 상태의 불변식이고, `history_preserves`는 모든 trace prefix 상태의 불변식입니다. 최종 제출에서는 이 세 문장의 차이를 말로 설명합니다.
+`timeout_local`은 timeout에서 송신·수신 노드의 진행 번호가 바뀌지 않는 국소 보존 성질입니다. `Inv`는 한 상태의 불변식이고, `history_preserves`는 모든 trace prefix 상태의 불변식입니다. 최종 제출에서는 이 세 문장(`timeout_local`, `Inv`, `history_preserves`)의 차이를 말로 설명합니다.
 
 ## 실습 E9–E11
 
 [시작 파일](../exercises/Session4.lean)과 [최종 과제](../projects/README.md)를 사용합니다.
 
 - **AST 설계 E9:** waiting일 때 timeout을 처리하는 규칙을 추가합니다. idle 상태 timeout은 여전히 거절되어야 합니다.
-- **trace 설계 E10:** 첫 ACK를 복제해 하나로 전송을 끝내고 다음 패킷을 시작합니다. 남은 오래된 ACK는 다음 전송을 완료시키지 못해야 합니다. 마지막에는 2개 완료 상태여야 합니다.
+- **trace 설계 E10:** 첫 ACK를 `duplicate`로 복제해 ACK 하나로 첫 전송을 끝내고(복제된 ACK는 큐에 남습니다) 다음 `start`로 두 번째 패킷을 시작합니다. 남은 오래된 ACK는 다음 전송을 완료시키지 못해야 합니다. 마지막에는 2개 완료 상태여야 합니다.
 - **증명 E11:** 다음 정리를 `intro`와 `history_preserves`로 증명합니다.
 
   ```lean

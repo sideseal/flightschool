@@ -11,13 +11,13 @@ lake env lean exercises/Session3.lean
 
 [Protocol.lean](../Flightschool/Protocol.lean)에서 지금은 `State`, `Message`, `execAction`, `directStep`을 읽습니다. `Guard`, `Rule`, `interpret`의 구현은 다음 회차에서 읽어도 됩니다. `interpreter_matches_direct`가 두 실행 방식의 결과가 같음을 연결합니다.
 
-`sender.next`는 다음 전송 번호이자 지금까지 ACK로 확인한 수, `receiver.next`는 다음에 받을 번호이자 받아들인 수입니다. 실제 payload 대신 번호만 전송합니다. 하나의 FIFO 큐에 방향이 구별되는 `.data n`, `.ack n`을 담습니다. `.deliver`는 맨 앞 한 개만 전달합니다. `.drop`은 맨 앞 한 개를 잃고, `.duplicate`는 맨 앞 메시지를 연속 두 개로 만듭니다. 이벤트의 선택은 환경 역할입니다.
+`sender.next`는 다음 전송 번호이자 지금까지 ACK로 확인한 수, `receiver.next`는 다음에 받을 번호이자 받아들인 수입니다. 실제 payload 대신 번호만 전송합니다. 하나의 FIFO 큐에 방향이 구별되는 `.data n`, `.ack n`을 담습니다. `.deliver`는 맨 앞 한 개만 전달합니다. `.drop`은 맨 앞 한 개를 잃고, `.duplicate`는 맨 앞 메시지를 연속 두 개로 만듭니다. 이벤트의 선택은 환경 역할입니다. `.start`는 idle인 송신자가 현재 번호의 데이터를 큐 끝에 넣는 이벤트이고, `.timeout`은 waiting일 때 같은 번호의 데이터를 다시 큐 끝에 넣는 이벤트입니다.
 
-수신자는 기대한 번호를 받으면 수신 수를 1 늘리고 ACK를 만듭니다. 오래된 데이터는 다시 세지 않지만 ACK를 재전송합니다. 미래 번호는 버립니다. 송신자는 waiting이며 현재 번호와 ACK가 일치할 때만 진행합니다.
+수신자는 기대한 번호를 받으면 수신 수를 1 늘리고 ACK를 만듭니다. 오래된 데이터(번호가 `receiver.next`보다 작음)는 다시 세지 않지만 ACK를 재전송합니다. 미래 번호(번호가 `receiver.next`보다 큼)는 버립니다. 송신자는 waiting이며 현재 번호와 ACK가 일치할 때만 진행합니다.
 
 ## 손으로 추적할 표
 
-`[start, deliver, drop, timeout, deliver, deliver]`을 실행하기 전에 빈 칸을 채우세요.
+`[start, deliver, drop, timeout, deliver, deliver]`을 실행하기 전에 빈 칸을 채우세요. 큐의 맨 앞은 왼쪽 원소이고, `deliver`·`drop`·`duplicate`는 모두 맨 앞 메시지만 다룹니다. 각 줄은 바로 윗줄의 상태에서 이어서 계산합니다.
 
 | 직후 이벤트 | sender.next | waiting | receiver.next | queue |
 |---|---:|---|---:|---|
@@ -31,15 +31,15 @@ lake env lean exercises/Session3.lean
 
 ## 불변식은 무엇을 말하나요?
 
-[Invariants.lean](../Flightschool/Invariants.lean)의 `Safe s`는 한 상태에 대한 명제입니다.
+불변식은 도달 가능한 모든 상태에서 항상 참이어야 하는 조건입니다. [Invariants.lean](../Flightschool/Invariants.lean)의 `Safe s`는 한 상태에 대한 명제입니다.
 
 ```text
 sender.next ≤ receiver.next ≤ sender.next + 1
 ```
 
-왼쪽은 실제 수신 전에 ACK 완료 수가 앞서지 않음, 오른쪽은 수신자가 두 개 이상 앞서지 않음입니다. 이것만으로는 다음 단계를 증명하기에 부족합니다. 예를 들어 카운터가 모두 0이어도 큐에 `ack 99`를 마음대로 넣으면 큐가 프로토콜 이력과 맞지 않습니다. `QueueValid`는 data 번호가 발급 범위를 넘지 않고, ACK 번호가 실제 수신 수보다 작다는 조건입니다. `Inv`는 `Safe ∧ QueueValid`입니다.
+왼쪽은 실제 수신 전에 ACK 완료 수가 앞서지 않음, 오른쪽은 수신자가 두 개 이상 앞서지 않음입니다. 이것만으로는 다음 단계를 증명하기에 부족합니다. 예를 들어 카운터가 모두 0이어도 큐에 `ack 99`를 마음대로 넣으면 큐가 프로토콜 이력과 맞지 않습니다. `QueueValid`는 data 번호가 발급 범위를 넘지 않고, ACK 번호가 실제 수신 수보다 작다는 조건입니다. `Inv`는 `Safe ∧ QueueValid`(`∧`는 “그리고”)입니다.
 
-읽는 순서:
+“보존한다”는 `Inv s`가 참이면 한 단계 뒤의 상태도 `Inv`가 참이라는 뜻입니다. 읽는 순서:
 
 1. `initial_inv`: 초기 상태가 Inv를 만족합니다.
 2. `action_preserves`, `step_preserves`: 한 명령·한 단계가 Inv를 보존합니다. 수치 분기의 `omega`는 자연수 부등식을 풀어주는 제공 보조 도구입니다. 첫 주에 이 긴 분기를 직접 재작성하지 않습니다.
@@ -49,7 +49,7 @@ sender.next ≤ receiver.next ≤ sender.next + 1
 
 ## 작은 전술 도구
 
-`intro`는 “모든 x”나 “A라면”의 x·가정을 꺼냅니다. `exact`는 현재 목표와 같은 타입의 증명을 제시합니다. `constructor`는 `A ∧ B`를 두 목표로 나눕니다. `apply`는 사용할 정리의 결론과 현재 목표를 맞추고 필요한 가정을 새 목표로 만듭니다. `induction`은 빈 목록과 앞 원소가 있는 목록을 나눕니다. [요약표](../references/lean-cheatsheet.md)를 곁에 두세요.
+`intro`는 “모든 x”나 “A라면”의 x·가정을 꺼냅니다. `exact`는 현재 목표와 같은 타입의 증명을 제시합니다. `constructor`는 `A ∧ B`를 두 목표로 나눕니다. `apply`는 사용할 정리의 결론과 현재 목표를 맞추고 필요한 가정을 새 목표로 만듭니다. `induction`은 빈 목록과 앞 원소가 있는 목록을 나눕니다. 빈 목록일 때 성립함을 보이고, 나머지 목록에 대해 성립한다는 가정(귀납 가정)에서 앞 이벤트 하나를 더한 목록에도 성립함을 보입니다. [요약표](../references/lean-cheatsheet.md)를 곁에 두세요.
 
 ## 실습 E6–E8
 

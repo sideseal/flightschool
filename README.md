@@ -9,7 +9,7 @@ Lean을 처음 접하는 프로그래머를 위한 **1주, 총 10시간** 네트
 Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확한 버전을 고정했으며 Mathlib나 외부 Lean 패키지는 필요 없습니다. 공식 자료 확인일은 2026-10-03입니다. [출처와 버전 정책](references/sources.md)을 참고하세요.
 
 1. Git, curl, VS Code를 설치합니다. Windows 사용자는 [공식 설치 안내](https://lean-lang.org/install/manual/)의 PowerShell 절차로 elan을 설치하세요. 아래 shell 명령은 Linux/macOS 기준입니다.
-2. elan(Lean 버전 관리자)을 설치합니다. 이미 있다면 생략합니다.
+2. elan(Lean 버전 관리자)을 설치합니다. 이미 있다면 생략합니다. 개발 컨테이너(`.devcontainer`)에서는 컨테이너를 만들 때 자동으로 설치되므로 이 단계를 건너뜁니다.
 
    ```sh
    curl -sSfL https://elan.lean-lang.org/elan-init.sh -o /tmp/elan-init.sh
@@ -17,9 +17,10 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
    . "$HOME/.elan/env"
    ```
 
-3. 이 저장소를 내려받아 루트 디렉터리를 엽니다. 디렉터리 이름이 `flightschool`이라면 다음과 같습니다.
+3. 이 저장소를 내려받아 루트 디렉터리를 엽니다. 다음은 `flightschool` 디렉터리로 내려받는 예입니다.
 
    ```sh
+   git clone https://github.com/sideseal/flightschool.git
    cd flightschool
    lean --version
    lake --version
@@ -29,7 +30,7 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
    code .
    ```
 
-   첫 명령에서 고정한 Lean 배포본을 내려받습니다. `lakefile.toml`이 보이는 폴더에서 실행해야 합니다. 이미 `/workspace`에 이 저장소가 열려 있다면 `cd /workspace`를 사용하세요. VS Code의 명령 팔레트에서 Lean Infoview를 열고, 오류 밑줄과 목표를 확인합니다.
+   `lean --version`을 처음 실행하면 고정한 Lean 배포본을 내려받습니다. `lakefile.toml`이 보이는 폴더에서 실행해야 합니다. 이미 `/workspace`에 이 저장소가 열려 있다면 `cd /workspace`를 사용하세요. VS Code의 명령 팔레트에서 Lean Infoview를 열고, 오류 밑줄과 목표를 확인합니다.
 4. [첫 수업](lessons/01-state.md)을 열고 다음을 실행합니다.
 
    ```sh
@@ -37,7 +38,7 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
    lake env lean exercises/Session1.lean
    ```
 
-   첫 파일은 `waiting, sent = 1`과 `idle, sent = 1`을 출력합니다. 연습 파일의 `prediction`을 고친 뒤 다시 실행하세요. **연습 시작 파일도 컴파일되지만 과제를 이미 충족한 것은 아닙니다.** 예측값·빈 trace·의도적인 논리 버그를 요구사항에 맞게 수정하는 방식입니다.
+   첫 파일은 `phase`가 `waiting`이고 `sent`가 1인 상태와, `phase`가 `idle`이고 `sent`가 1인 상태를 출력합니다. 연습 파일의 `prediction`을 고친 뒤 다시 실행하세요. **연습 시작 파일도 컴파일되지만 과제를 이미 충족한 것은 아닙니다.** 예측값·빈 trace·의도적인 논리 버그를 요구사항에 맞게 수정하는 방식입니다.
 
 전체 검증은 `bash scripts/check.sh`입니다(Python 3 필요). 기본 `lake build`에도 모든 수업 코드, 연습, 해답, 최종 과제가 포함됩니다. [검증 기록](references/validation.md)에 실제 검사 범위가 있습니다.
 
@@ -71,7 +72,7 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
 | `lessons/` | 목표·설명·실행·과제·단계별 힌트·해설 |
 | `exercises/`, `solutions/` | 직접 수정하는 시작 파일과 컴파일되는 해답 |
 | `projects/` | 최종 과제 명세와 검증된 참조 제출물 |
-| `references/` | 문법·전술 요약, 의미론의 경계, 공식 출처 |
+| `references/` | 용어집, 문법·전술 요약, 의미론의 경계, 공식 출처 |
 | `instructors/` | 초보 진행자용 운영·평가 안내 |
 
 ## 여기서 증명하는 것
@@ -81,3 +82,7 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
 수신 번호는 실제로 받아들인 패킷 수, 송신 번호는 ACK로 확인한 패킷 수입니다. 어떤 유한 이벤트 목록에서도 `sender.next ≤ receiver.next ≤ sender.next + 1`이고 큐의 ACK는 실제 수신 이력을 근거로 합니다. 타입만으로는 잘못된 상태를 금지하지 않으며, 초기 상태에서 시작한다는 가정과 실행 의미론의 증명이 필요합니다.
 
 이 모델은 무한히 증가하는 번호를 사용하며 비트가 순환하는 alternating-bit 프로토콜과 다릅니다. payload 내용, 실제 소켓·시계, 위조·손상·노드 장애, 임의 재정렬은 모델링하지 않습니다. 무한 손실에서는 안전해도 완료되지 않습니다. [모델의 가정과 보장](references/semantics.md)을 읽고 최종 과제에 경계를 적으세요.
+
+## 라이선스
+
+[GNU AGPL v3](LICENSE.md)입니다.

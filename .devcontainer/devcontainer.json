@@ -3,15 +3,12 @@
   "dockerComposeFile": "../compose.yaml",
   "service": "dev",
   "workspaceFolder": "/workspace",
-  "forwardPorts": [
-    8081,
-    19006
-  ],
   "remoteUser": "node",
   "remoteEnv": {
     "ELAN_HOME": "/workspace/.elan",
     "PATH": "/workspace/.elan/bin:${containerEnv:PATH}"
   },
+  "postCreateCommand": "export ELAN_HOME=/workspace/.elan PATH=/workspace/.elan/bin:$PATH; [ -x \"$ELAN_HOME/bin/elan\" ] || curl -sSfL https://elan.lean-lang.org/elan-init.sh | sh -s -- -y --no-modify-path --default-toolchain none; lean --version",
   "customizations": {
     "vscode": {
       "extensions": [
