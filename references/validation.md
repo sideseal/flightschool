@@ -20,14 +20,11 @@ Lake version 5.0.0-src+5045d00 (Lean version 4.34.1)
 
 일부 정리는 Lean 표준 논리의 `propext`, `Classical.choice`, `Quot.sound`에 의존합니다. 사용자 정의 공리나 미완성 증명을 추가하지 않았습니다. `omega`가 만든 산술 증명도 커널 검사를 거칩니다.
 
-## 이 작업 환경에서 재실행
+## 개발 컨테이너에서 재실행
 
-기본 shell 실행기가 OS의 namespace 생성 제한으로 시작되지 않아, 승인된 실행 경로로 검증했습니다. Lean은 작업 디렉터리의 `.elan/`에 설치했으며 이 폴더와 `.lake/`는 Git에서 제외합니다. 이 환경의 새 shell에서는 다음처럼 실행할 수 있습니다.
+`.devcontainer`는 컨테이너를 만들 때 `/workspace/.elan`에 elan과 고정된 Lean 배포본을 설치합니다. 이 폴더와 `.lake/`는 Git에서 제외합니다. 컨테이너의 터미널에서 다음처럼 실행합니다.
 
 ```sh
-cd /workspace
-export ELAN_HOME=/workspace/.elan
-export PATH="$ELAN_HOME/bin:$PATH"
 bash scripts/check.sh
 ```
 
@@ -35,4 +32,4 @@ bash scripts/check.sh
 
 ## 직접 검증하지 않은 항목
 
-VS Code GUI 상호작용, Windows/macOS에서의 설치·빌드, GitHub 원격 CI 실행은 이 Linux 세션에서 직접 확인하지 않았습니다. CI 설정은 제공했지만 원격 저장소로 push하지 않았습니다. 핵심 Lean 빌드·실행·증명에는 미검증 항목이 남아 있지 않습니다. 실제 네트워크 구현이나 liveness 증명은 교육 모델의 범위 밖입니다.
+VS Code GUI 상호작용, Windows/macOS에서의 설치·빌드, GitHub 원격 CI 실행은 이 Linux 세션에서 직접 확인하지 않았습니다. CI 설정은 제공했지만 원격 실행 결과는 확인하지 않았습니다. 개발 컨테이너 설정도 실제로 빌드해 확인하지 않았습니다. 핵심 Lean 빌드·실행·증명에는 미검증 항목이 남아 있지 않습니다. 실제 네트워크 구현이나 liveness 증명은 교육 모델의 범위 밖입니다.

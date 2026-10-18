@@ -17,9 +17,10 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
    . "$HOME/.elan/env"
    ```
 
-3. 이 저장소를 내려받아 루트 디렉터리를 엽니다. 디렉터리 이름이 `flightschool`이라면 다음과 같습니다.
+3. 이 저장소를 내려받아 루트 디렉터리를 엽니다. 다음은 `flightschool` 디렉터리로 내려받는 예입니다.
 
    ```sh
+   git clone https://github.com/sideseal/flightschool.git
    cd flightschool
    lean --version
    lake --version
@@ -81,3 +82,7 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
 수신 번호는 실제로 받아들인 패킷 수, 송신 번호는 ACK로 확인한 패킷 수입니다. 어떤 유한 이벤트 목록에서도 `sender.next ≤ receiver.next ≤ sender.next + 1`이고 큐의 ACK는 실제 수신 이력을 근거로 합니다. 타입만으로는 잘못된 상태를 금지하지 않으며, 초기 상태에서 시작한다는 가정과 실행 의미론의 증명이 필요합니다.
 
 이 모델은 무한히 증가하는 번호를 사용하며 비트가 순환하는 alternating-bit 프로토콜과 다릅니다. payload 내용, 실제 소켓·시계, 위조·손상·노드 장애, 임의 재정렬은 모델링하지 않습니다. 무한 손실에서는 안전해도 완료되지 않습니다. [모델의 가정과 보장](references/semantics.md)을 읽고 최종 과제에 경계를 적으세요.
+
+## 라이선스
+
+[GNU AGPL v3](LICENSE.md)입니다.
