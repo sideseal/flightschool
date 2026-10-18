@@ -29,7 +29,7 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
    code .
    ```
 
-   첫 명령에서 고정한 Lean 배포본을 내려받습니다. `lakefile.toml`이 보이는 폴더에서 실행해야 합니다. 이미 `/workspace`에 이 저장소가 열려 있다면 `cd /workspace`를 사용하세요. VS Code의 명령 팔레트에서 Lean Infoview를 열고, 오류 밑줄과 목표를 확인합니다.
+   `lean --version`을 처음 실행하면 고정한 Lean 배포본을 내려받습니다. `lakefile.toml`이 보이는 폴더에서 실행해야 합니다. 이미 `/workspace`에 이 저장소가 열려 있다면 `cd /workspace`를 사용하세요. VS Code의 명령 팔레트에서 Lean Infoview를 열고, 오류 밑줄과 목표를 확인합니다.
 4. [첫 수업](lessons/01-state.md)을 열고 다음을 실행합니다.
 
    ```sh
@@ -37,7 +37,7 @@ Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확
    lake env lean exercises/Session1.lean
    ```
 
-   첫 파일은 `waiting, sent = 1`과 `idle, sent = 1`을 출력합니다. 연습 파일의 `prediction`을 고친 뒤 다시 실행하세요. **연습 시작 파일도 컴파일되지만 과제를 이미 충족한 것은 아닙니다.** 예측값·빈 trace·의도적인 논리 버그를 요구사항에 맞게 수정하는 방식입니다.
+   첫 파일은 `phase`가 `waiting`이고 `sent`가 1인 상태와, `phase`가 `idle`이고 `sent`가 1인 상태를 출력합니다. 연습 파일의 `prediction`을 고친 뒤 다시 실행하세요. **연습 시작 파일도 컴파일되지만 과제를 이미 충족한 것은 아닙니다.** 예측값·빈 trace·의도적인 논리 버그를 요구사항에 맞게 수정하는 방식입니다.
 
 전체 검증은 `bash scripts/check.sh`입니다(Python 3 필요). 기본 `lake build`에도 모든 수업 코드, 연습, 해답, 최종 과제가 포함됩니다. [검증 기록](references/validation.md)에 실제 검사 범위가 있습니다.
 
