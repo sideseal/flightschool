@@ -9,7 +9,7 @@ Lean을 처음 접하는 프로그래머를 위한 **1주, 총 10시간** 네트
 Lean **4.34.1**과 동봉된 Lake를 사용합니다. `lean-toolchain`에 정확한 버전을 고정했으며 Mathlib나 외부 Lean 패키지는 필요 없습니다. 공식 자료 확인일은 2026-10-03입니다. [출처와 버전 정책](references/sources.md)을 참고하세요.
 
 1. Git, curl, VS Code를 설치합니다. Windows 사용자는 [공식 설치 안내](https://lean-lang.org/install/manual/)의 PowerShell 절차로 elan을 설치하세요. 아래 shell 명령은 Linux/macOS 기준입니다.
-2. elan(Lean 버전 관리자)을 설치합니다. 이미 있다면 생략합니다.
+2. elan(Lean 버전 관리자)을 설치합니다. 이미 있다면 생략합니다. 개발 컨테이너(`.devcontainer`)에서는 컨테이너를 만들 때 자동으로 설치되므로 이 단계를 건너뜁니다.
 
    ```sh
    curl -sSfL https://elan.lean-lang.org/elan-init.sh -o /tmp/elan-init.sh
