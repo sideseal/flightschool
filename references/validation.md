@@ -32,4 +32,4 @@ bash scripts/check.sh
 
 ## 직접 검증하지 않은 항목
 
-VS Code GUI 상호작용, Windows/macOS에서의 설치·빌드, GitHub 원격 CI 실행은 이 Linux 세션에서 직접 확인하지 않았습니다. CI 설정은 제공했지만 원격 실행 결과는 확인하지 않았습니다. 개발 컨테이너 설정도 실제로 빌드해 확인하지 않았습니다. 핵심 Lean 빌드·실행·증명에는 미검증 항목이 남아 있지 않습니다. 실제 네트워크 구현이나 liveness 증명은 교육 모델의 범위 밖입니다.
+VS Code GUI 상호작용, Windows/macOS에서의 설치·빌드, GitHub 원격 CI 실행은 이 Linux 세션에서 직접 확인하지 않았습니다. CI 설정은 제공했지만 원격 실행 결과는 확인하지 않았습니다. 개발 컨테이너(`.devcontainer`)에서는 2026-10-18에 Lean 4.34.1 설치와 `bash scripts/check.sh` 통과를 확인했습니다. 핵심 Lean 빌드·실행·증명에는 미검증 항목이 남아 있지 않습니다. 실제 네트워크 구현이나 liveness 증명은 교육 모델의 범위 밖입니다.

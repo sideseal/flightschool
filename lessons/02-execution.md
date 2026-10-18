@@ -11,7 +11,7 @@ lake env lean exercises/Session2.lean
 
 [Local.lean](../Flightschool/Local.lean)은 `pending : Option Nat`으로 미확인 패킷을 저장합니다. `Option Nat`은 값이 없거나(`none`) 자연수 하나가 있는(`some n`) 두 경우만 가집니다. `none`은 대기 패킷이 없음, `some 7`은 패킷 7의 ACK를 기다림입니다. 전이의 바깥쪽 `Option`(`step`의 반환 타입 `Option (State × List Action)`)은 다른 뜻입니다. `step s e = none`은 해당 이벤트를 받아들이지 않았다는 뜻입니다.
 
-성공 시 `(다음 상태, 명령 목록)`을 반환합니다. `×`는 두 값을 한 쌍으로 묶는 타입입니다. `.transmit 7`은 관찰 가능한 전송 요청입니다. 이 단계에는 네트워크 큐가 없으며, 출력 Action을 실제 전송하는 런타임도 없습니다. 다음 수업에서 큐를 명시적으로 넣습니다.
+성공 시 `(다음 상태, 명령 목록)`을 반환합니다. `×`는 두 값을 한 쌍으로 묶는 타입입니다. `.transmit 7`은 관찰 가능한 전송 요청입니다. 이 단계에는 네트워크 큐가 없으며, 출력 Action을 실제 전송하는 런타임도 없습니다. 다음 수업에서 큐를 명시적으로 넣습니다. 아래 세 식 중 앞의 두 개는 `Local.lean`에 없으므로 직접 붙여 넣어 실행해 보세요. `Local.lean`을 실행하면 세 번째 식의 결과 `{ pending := none }`만 나옵니다.
 
 ```lean
 #eval step ⟨some 7⟩ (.ack 6)  -- none
